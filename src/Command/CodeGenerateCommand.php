@@ -11,6 +11,7 @@ declare(strict_types=1);
  */
 namespace Hyperf\CodeGenerator\Command;
 
+use Hyperf\CodeGenerator\Ast;
 use Hyperf\CodeGenerator\CodeGenerator;
 use Hyperf\Command\Annotation\Command;
 use Hyperf\Command\Command as HyperfCommand;
@@ -54,6 +55,15 @@ class CodeGenerateCommand extends HyperfCommand
 
         $finder = Finder::create()->files()
             ->ignoreVCS(true)
+            ->path('.php')
             ->in($dir);
+
+        $generator = new CodeGenerator($flag, new Ast());
+
+        foreach ($finder as $item) {
+            $path = $item->getRealPath();
+            $code = $generator->generate($path);
+            file_put_contents($path, $code);
+        }
     }
 }

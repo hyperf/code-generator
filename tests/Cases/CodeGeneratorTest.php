@@ -52,4 +52,11 @@ class Foo
     public Bar $bar4;
 }', $code);
     }
+
+    public function testRewriteNotHandledClass()
+    {
+        $generator = new CodeGenerator(CodeGenerator::FLAG_INJECT, new Ast());
+        $code = $generator->generate($origin = file_get_contents(__DIR__ . '/../Stub/Bar.php'));
+        $this->assertSame($code, $origin);
+    }
 }

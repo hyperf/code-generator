@@ -36,7 +36,7 @@ class Ast
         $this->reader = new AnnotationReader();
     }
 
-    public function generate(string $code, array $visitors = [])
+    public function generate(string $code, array $visitors = []): string
     {
         $stmts = $this->parser->parse($code);
 
@@ -47,7 +47,7 @@ class Ast
             $traverser->addVisitor($visitor);
         }
         $modifiedStmts = $traverser->traverse($stmts);
-        return $this->printer->prettyPrintFile($modifiedStmts);
+        return $metadata->isHandled() ? $this->printer->prettyPrintFile($modifiedStmts) : $code;
     }
 
     private function getCodeByClassName(string $className): string

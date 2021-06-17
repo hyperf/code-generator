@@ -15,8 +15,20 @@ use Doctrine\Common\Annotations\Reader;
 
 class Metadata
 {
+    protected bool $handled = false;
+
     public function __construct(
         public Reader $reader,
     ) {
+    }
+
+    public function isHandled(): bool
+    {
+        return $this->handled;
+    }
+
+    public function setHandled(bool $handled): void
+    {
+        $this->handled = $handled;
     }
 }

@@ -23,9 +23,9 @@ class RewriteInjectVisitor extends NodeVisitorAbstract
 {
     public Reader $reader;
 
-    public ReflectionClass $reflection;
+    public ?ReflectionClass $reflection = null;
 
-    public ?Node\Stmt\Namespace_ $namespace;
+    public ?Node\Stmt\Namespace_ $namespace = null;
 
     public function __construct(public Metadata $metadata)
     {
@@ -34,7 +34,6 @@ class RewriteInjectVisitor extends NodeVisitorAbstract
 
     public function enterNode(Node $node)
     {
-        $parts = [];
         switch ($node) {
             case $node instanceof Node\Stmt\Namespace_:
                 $this->namespace = $node;
@@ -49,6 +48,10 @@ class RewriteInjectVisitor extends NodeVisitorAbstract
 
     public function leaveNode(Node $node)
     {
+        if (! $this->reflection) {
+            return $node;
+        }
+
         switch ($node) {
             case $node instanceof Node\Stmt\Property:
                 $property = $this->reflection->getProperty((string) $node->props[0]->name);
@@ -69,6 +72,7 @@ class RewriteInjectVisitor extends NodeVisitorAbstract
                         ]);
                         $node->type = new Node\Name($type);
                         $node->setAttribute('comments', null);
+                        $this->metadata->setHandled(true);
                     }
                 }
 
