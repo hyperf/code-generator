@@ -9,16 +9,8 @@ declare(strict_types=1);
  * @contact  group@hyperf.io
  * @license  https://github.com/hyperf/hyperf/blob/master/LICENSE
  */
-namespace HyperfTest\Cases;
+namespace HyperfTest\Stub;
 
-/**
- * @internal
- * @coversNothing
- */
-class ExampleTest extends AbstractTestCase
+class Bar
 {
-    public function testExample()
-    {
-        $this->assertTrue(true);
-    }
 }

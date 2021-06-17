@@ -1,5 +1,5 @@
-# component-creater
+# CodeGenerator
 
 ```
-composer create-project hyperf/component-creater
+composer require hyperf/code-generator --dev -o
 ```
