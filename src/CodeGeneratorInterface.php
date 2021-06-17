@@ -13,5 +13,5 @@ namespace Hyperf\CodeGenerator;
 
 interface CodeGeneratorInterface
 {
-    public function generate(string $className): string;
+    public function generate(string $code): string;
 }

@@ -25,9 +25,9 @@ class CodeGenerator implements CodeGeneratorInterface
     {
     }
 
-    public function generate(string $className): string
+    public function generate(string $code): string
     {
-        return $this->ast->generate($className, $this->getVisitors());
+        return $this->ast->generate($code, $this->getVisitors());
     }
 
     protected function getVisitors(): array

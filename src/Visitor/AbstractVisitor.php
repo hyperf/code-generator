@@ -9,14 +9,10 @@ declare(strict_types=1);
  * @contact  group@hyperf.io
  * @license  https://github.com/hyperf/hyperf/blob/master/LICENSE
  */
-namespace Hyperf\CodeGenerator;
+namespace Hyperf\CodeGenerator\Visitor;
 
-use Doctrine\Common\Annotations\Reader;
+use PhpParser\NodeVisitorAbstract;
 
-class Metadata
+class AbstractVisitor extends NodeVisitorAbstract
 {
-    public function __construct(
-        public Reader $reader,
-    ) {
-    }
 }

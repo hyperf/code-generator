@@ -14,7 +14,6 @@ namespace Hyperf\CodeGenerator\Visitor;
 use Doctrine\Common\Annotations\Reader;
 use Hyperf\CodeGenerator\Metadata;
 use Hyperf\Di\Annotation\Inject;
-use PhpDocReader\PhpDocReader;
 use PhpParser\Node;
 use PhpParser\NodeVisitorAbstract;
 use ReflectionClass;
@@ -26,13 +25,26 @@ class RewriteInjectVisitor extends NodeVisitorAbstract
 
     public ReflectionClass $reflection;
 
-    public PhpDocReader $docReader;
+    public ?Node\Stmt\Namespace_ $namespace;
 
     public function __construct(public Metadata $metadata)
     {
         $this->reader = $this->metadata->reader;
-        $this->docReader = $this->metadata->docReader;
-        $this->reflection = new ReflectionClass($this->metadata->className);
+    }
+
+    public function enterNode(Node $node)
+    {
+        $parts = [];
+        switch ($node) {
+            case $node instanceof Node\Stmt\Namespace_:
+                $this->namespace = $node;
+                break;
+            case $node instanceof Node\Stmt\Class_:
+                $this->reflection = new ReflectionClass(
+                    $this->namespace->name . '\\' . $node->name
+                );
+                break;
+        }
     }
 
     public function leaveNode(Node $node)
@@ -62,6 +74,8 @@ class RewriteInjectVisitor extends NodeVisitorAbstract
 
                 return $node;
         }
+
+        return null;
     }
 
     protected function readTypeFromProperty(ReflectionProperty $property): ?string

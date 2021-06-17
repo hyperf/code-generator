@@ -13,7 +13,6 @@ namespace HyperfTest\Cases;
 
 use Hyperf\CodeGenerator\Ast;
 use Hyperf\CodeGenerator\CodeGenerator;
-use HyperfTest\Stub\Foo;
 
 /**
  * @internal
@@ -24,7 +23,7 @@ class CodeGeneratorTest extends AbstractTestCase
     public function testRewriteInjectClass()
     {
         $generator = new CodeGenerator(CodeGenerator::FLAG_INJECT, new Ast());
-        $code = $generator->generate(Foo::class);
+        $code = $generator->generate(file_get_contents(__DIR__ . '/../Stub/Foo.php'));
         $this->assertSame('<?php
 
 declare (strict_types=1);

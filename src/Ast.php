@@ -14,7 +14,6 @@ namespace Hyperf\CodeGenerator;
 use Doctrine\Common\Annotations\AnnotationReader;
 use Doctrine\Common\Annotations\Reader;
 use Hyperf\Utils\Composer;
-use PhpDocReader\PhpDocReader;
 use PhpParser\NodeTraverser;
 use PhpParser\Parser;
 use PhpParser\ParserFactory;
@@ -23,29 +22,26 @@ use PhpParser\PrettyPrinterAbstract;
 
 class Ast
 {
-    private Parser $astParser;
+    private Parser $parser;
 
     private PrettyPrinterAbstract $printer;
 
     private Reader $reader;
 
-    private PhpDocReader $docReader;
-
     public function __construct()
     {
         $parserFactory = new ParserFactory();
-        $this->astParser = $parserFactory->create(ParserFactory::ONLY_PHP7);
+        $this->parser = $parserFactory->create(ParserFactory::ONLY_PHP7);
         $this->printer = new Standard();
         $this->reader = new AnnotationReader();
-        $this->docReader = new PhpDocReader();
     }
 
-    public function generate(string $className, array $visitors = [])
+    public function generate(string $code, array $visitors = [])
     {
-        $code = $this->getCodeByClassName($className);
-        $stmts = $this->astParser->parse($code);
+        $stmts = $this->parser->parse($code);
+
         $traverser = new NodeTraverser();
-        $metadata = new Metadata($className, $this->reader, $this->docReader);
+        $metadata = new Metadata($this->reader);
         foreach ($visitors as $string) {
             $visitor = new $string($metadata);
             $traverser->addVisitor($visitor);
