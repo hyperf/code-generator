@@ -62,7 +62,7 @@ class CodeGenerateCommand extends HyperfCommand
 
         foreach ($finder as $item) {
             $path = $item->getRealPath();
-            $code = $generator->generate($path);
+            $code = $generator->generate(file_get_contents($path));
             file_put_contents($path, $code);
         }
     }
