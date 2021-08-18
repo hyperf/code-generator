@@ -16,7 +16,6 @@ use Hyperf\CodeGenerator\CodeGenerator;
 use Hyperf\Command\Annotation\Command;
 use Hyperf\Command\Command as HyperfCommand;
 use Psr\Container\ContainerInterface;
-use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Finder\Finder;
 
 #[Command]
@@ -38,13 +37,10 @@ class CodeGenerateCommand extends HyperfCommand
     {
         parent::configure();
         $this->setDescription('Generate code for Hyperf.');
-        $this->addOption('flag', 'F', InputOption::VALUE_OPTIONAL, '1: Inject', CodeGenerator::FLAG_ALL);
-        $this->addOption('dir', 'D', InputOption::VALUE_OPTIONAL, 'Which dir will be rewrite.', 'app');
     }
 
     public function handle()
     {
-        $flag = (int) $this->input->getOption('flag');
         $dir = $this->input->getOption('dir');
 
         $dir = BASE_PATH . '/' . $dir;
@@ -58,8 +54,7 @@ class CodeGenerateCommand extends HyperfCommand
             ->path('.php')
             ->in($dir);
 
-        $generator = new CodeGenerator($flag, new Ast());
-
+        $generator = new CodeGenerator(new Ast());
         foreach ($finder as $item) {
             $path = $item->getRealPath();
             $code = $generator->generate(file_get_contents($path));
