@@ -11,32 +11,18 @@ declare(strict_types=1);
  */
 namespace Hyperf\CodeGenerator;
 
-use Hyperf\CodeGenerator\Visitor\RewriteInjectVisitor;
-
 class CodeGenerator implements CodeGeneratorInterface
 {
-    public const FLAG_INJECT = 1;
-
-    public const FLAG_ALL = 1023;
-
-    protected array $visitors = [];
-
-    public function __construct(public int $flag, public Ast $ast)
-    {
-    }
+    public function __construct(public Ast $ast) {}
 
     public function generate(string $code): string
     {
-        return $this->ast->generate($code, $this->getVisitors());
+        return $this->ast->generate($code,$this->getAnnotations());
     }
 
-    protected function getVisitors(): array
+    protected function getAnnotations(): array
     {
-        $visitors = [];
-        if ($this->flag & self::FLAG_INJECT) {
-            $visitors[] = RewriteInjectVisitor::class;
-        }
-
-        return $visitors;
+        /** @var array $annotations */
+        return (array) config('annotations.convert');
     }
 }
