@@ -75,7 +75,7 @@ class ConfigProvider
                     'Hyperf\SocketIOServer\Annotation\SocketIONamespace',
                     'Hyperf\Task\Annotation\Task',
                     'Hyperf\Tracer\Annotation\Trace',
-                ]
+                ],
             ],
         ];
     }

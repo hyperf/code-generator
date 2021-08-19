@@ -13,16 +13,18 @@ namespace Hyperf\CodeGenerator;
 
 class CodeGenerator implements CodeGeneratorInterface
 {
-    public function __construct(public Ast $ast) {}
+    public function __construct(public Ast $ast)
+    {
+    }
 
     public function generate(string $code): string
     {
-        return $this->ast->generate($code,$this->getAnnotations());
+        return $this->ast->generate($code, $this->getAnnotations());
     }
 
     protected function getAnnotations(): array
     {
-        /** @var array $annotations */
+        /* @var array $annotations */
         return (array) config('annotations.convert');
     }
 }
