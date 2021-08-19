@@ -78,8 +78,8 @@ class CodeGenerateCommand extends HyperfCommand
         }
     }
 
-    public function errorOut(string $path): string
+    public function errorOut(string $path): void
     {
-        $this->output->error(sprintf('`%s` refactor error, please consider submit issue at https://github.com/hyperf/code-generato', $path));
+        $this->output->error(sprintf('`%s` refactor error, please consider submit issue at https://github.com/hyperf/code-generator', $path));
     }
 }
