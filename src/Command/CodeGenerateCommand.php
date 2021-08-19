@@ -19,6 +19,7 @@ use Hyperf\Command\Command as HyperfCommand;
 use Psr\Container\ContainerInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Finder\Finder;
+use Throwable;
 
 #[Command]
 class CodeGenerateCommand extends HyperfCommand
@@ -43,6 +44,9 @@ class CodeGenerateCommand extends HyperfCommand
 
     }
 
+    /**
+     * @throws Throwable
+     */
     public function handle()
     {
         $dir = $this->input->getOption('dir');
@@ -65,8 +69,23 @@ class CodeGenerateCommand extends HyperfCommand
         $generator = new CodeGenerator(new Ast(new AnnotationReader()));
         foreach ($finder as $item) {
             $path = $item->getRealPath();
-            $code = $generator->generate(file_get_contents($path));
+            try {
+                $code = $generator->generate(file_get_contents($path));
+            } catch (Throwable $e) {
+                $this->errorOut($path);
+                throw $e;
+            }
             file_put_contents($path, $code);
         }
+    }
+
+    /**
+     * @param string $path
+     *
+     * @return string
+     */
+    public function errorOut(string $path) :string
+    {
+        $this->output->error(sprintf('`%s` refactor error, please consider submit issue at https://github.com/hyperf/code-generato',$path));
     }
 }
