@@ -108,7 +108,7 @@ class RewriteVisitor extends NodeVisitorAbstract
      */
     protected function generateAttributeAndSaveComments(Node $node, array $annotations): Node\Stmt\Class_|Node\Stmt\ClassMethod
     {
-        $comments = $node->getComments()[0]->getText();
+        $comments = collect($node->getComments())->last()?->getText();
         foreach ($annotations as $annotation) {
             if (!in_array($annotation::class, $this->annotations, true)) {
                 continue;
@@ -124,7 +124,7 @@ class RewriteVisitor extends NodeVisitorAbstract
             $comments = $this->removeAnnotationFromComments($comments, $annotation);
             $this->metadata->setHandled(true);
         }
-        $node->setDocComment(new Doc($comments));
+        $node->setDocComment(new Doc((string)$comments));
         return $node;
     }
 
@@ -136,6 +136,8 @@ class RewriteVisitor extends NodeVisitorAbstract
     {
         $property = $this->reflection->getProperty((string) $node->props[0]->name);
         $annotations = $this->reader->getPropertyAnnotations($property);
+        $comments = collect($node->getComments())->last()?->getText();
+        /** @var AbstractAnnotation[] $annotations */
         foreach ($annotations as $annotation) {
             if (!in_array($annotation::class,$this->annotations,true)) {
                 continue;
@@ -152,9 +154,10 @@ class RewriteVisitor extends NodeVisitorAbstract
                 ),
             ]);
             $node->type = new Node\Name($type);
-            $node->setAttribute('comments', null);
+            $comments = $this->removeAnnotationFromComments($comments, $annotation);
             $this->metadata->setHandled(true);
         }
+        $node->setDocComment(new Doc((string)$comments));
         return $node;
     }
 
@@ -183,7 +186,7 @@ class RewriteVisitor extends NodeVisitorAbstract
         $properties = [];
         $ref = new ReflectionClass($annotation);
         foreach ($ref->getProperties(ReflectionProperty::IS_PUBLIC) as $property) {
-            if($property->hasDefaultValue() && $property->getDefaultValue() == $property->getValue($annotation)) {
+            if($property->hasDefaultValue() && $property->getDefaultValue() === $property->getValue($annotation)) {
                 continue;
             }
             $properties[$property->getName()] = $property->getValue($annotation);
@@ -191,8 +194,11 @@ class RewriteVisitor extends NodeVisitorAbstract
         return $properties;
     }
 
-    protected function removeAnnotationFromComments(string $comments,AbstractAnnotation $annotation) :string
+    protected function removeAnnotationFromComments(?string $comments,AbstractAnnotation $annotation) :?string
     {
+        if(empty($comments)) {
+            return $comments;
+        }
         $reserved = [];
         $exclude = false;
         $class = sprintf('@%s',$this->getClassName($annotation));
@@ -203,7 +209,20 @@ class RewriteVisitor extends NodeVisitorAbstract
             }
             $reserved[] = $comment;
         }
+        if($exclude === true && $this->isEmptyComments($reserved)) {
+            return null;
+        }
         return implode(PHP_EOL,$reserved);
+    }
+
+    protected function isEmptyComments(array $comments) :bool
+    {
+        foreach ($comments as $comment) {
+            if(preg_match('/^[\s*\/]*$/',$comment) === 0) {
+                return false;
+            }
+        }
+        return true;
     }
 
     protected function getClassName($class) :string
@@ -213,9 +232,9 @@ class RewriteVisitor extends NodeVisitorAbstract
             if($name === $use->name->toString()) {
                 if($use->alias === null) {
                     return end($use->name->parts);
-                } else {
-                    return $use->alias->toString();
                 }
+
+                return $use->alias->toString();
             }
         }
         return $name;
