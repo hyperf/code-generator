@@ -11,6 +11,7 @@ declare(strict_types=1);
  */
 namespace Hyperf\CodeGenerator\Command;
 
+use Doctrine\Common\Annotations\AnnotationReader;
 use Hyperf\CodeGenerator\Ast;
 use Hyperf\CodeGenerator\CodeGenerator;
 use Hyperf\Command\Annotation\Command;
@@ -57,7 +58,11 @@ class CodeGenerateCommand extends HyperfCommand
             ->path('.php')
             ->in($dir);
 
-        $generator = new CodeGenerator(new Ast());
+        foreach ((array)config('annotations.scan.ignore_annotations') as $name) {
+            AnnotationReader::addGlobalIgnoredName($name);
+        }
+
+        $generator = new CodeGenerator(new Ast(new AnnotationReader()));
         foreach ($finder as $item) {
             $path = $item->getRealPath();
             $code = $generator->generate(file_get_contents($path));

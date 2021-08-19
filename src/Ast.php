@@ -28,14 +28,11 @@ class Ast
 
     private PrettyPrinterAbstract $printer;
 
-    private Reader $reader;
-
-    public function __construct()
+    public function __construct(public Reader $reader)
     {
         $parserFactory = new ParserFactory();
         $this->parser = $parserFactory->create(ParserFactory::ONLY_PHP7);
         $this->printer = new Standard();
-        $this->reader = new AnnotationReader();
     }
 
     public function generate(string $code,array $annotations): string
