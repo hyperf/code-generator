@@ -6,8 +6,20 @@ composer require hyperf/code-generator --dev -o
 
 ## 将 Doctrine 的注解转化为 PHP8 原生注解
 
-- Inject
-
 ```shell
-php bin/hyperf.php code:generate -F 1 -D app
+php bin/hyperf.php code:generate -D app
+```
+## 添加自定义的注解类
+
+- 编辑 config/autoload/annotations.php
+```php
+<?php
+    use App\Annotation\Note;
+    
+    return [
+        'convert' => [
+            Note::class,
+        ]   
+    ];
+    
 ```
