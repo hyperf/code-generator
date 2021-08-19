@@ -11,6 +11,7 @@ declare(strict_types=1);
  */
 namespace HyperfTest\Cases;
 
+use Doctrine\Common\Annotations\AnnotationReader;
 use Hyperf\CodeGenerator\Ast;
 use Hyperf\CodeGenerator\CodeGenerator;
 
@@ -22,7 +23,7 @@ class CodeGeneratorTest extends AbstractTestCase
 {
     public function testRewriteInjectClass()
     {
-        $generator = new CodeGenerator(CodeGenerator::FLAG_INJECT, new Ast());
+        $generator = new CodeGenerator(new Ast(new AnnotationReader()));
         $code = $generator->generate(file_get_contents(__DIR__ . '/../Stub/Foo.php'));
         $this->assertSame('<?php
 
@@ -55,7 +56,7 @@ class Foo
 
     public function testRewriteNotHandledClass()
     {
-        $generator = new CodeGenerator(CodeGenerator::FLAG_INJECT, new Ast());
+        $generator = new CodeGenerator(new Ast(new AnnotationReader()));
         $code = $generator->generate($origin = file_get_contents(__DIR__ . '/../Stub/Bar.php'));
         $this->assertSame($code, $origin);
     }
