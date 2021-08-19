@@ -11,12 +11,9 @@ declare(strict_types=1);
  */
 namespace Hyperf\CodeGenerator;
 
-use Doctrine\Common\Annotations\AnnotationReader;
 use Doctrine\Common\Annotations\Reader;
 use Hyperf\CodeGenerator\Visitor\RewriteVisitor;
-use Hyperf\Utils\Composer;
 use PhpParser\NodeTraverser;
-use PhpParser\NodeVisitor\NameResolver;
 use PhpParser\Parser;
 use PhpParser\ParserFactory;
 use PhpParser\PrettyPrinter\Standard;
@@ -35,22 +32,22 @@ class Ast
         $this->printer = new Standard();
     }
 
-    public function generate(string $code,array $annotations): string
+    public function generate(string $code, array $annotations): string
     {
         $stmts = $this->parser->parse($code);
         $traverser = new NodeTraverser();
         $metadata = new Metadata($this->reader);
-        $traverser->addVisitor(new RewriteVisitor($metadata,$annotations));
+        $traverser->addVisitor(new RewriteVisitor($metadata, $annotations));
         $modifiedStmts = $traverser->traverse($stmts);
         return $metadata->isHandled() ? $this->printer->prettyPrintFile($modifiedStmts) : $code;
     }
 
-    public function generate22(string $code,array $annotations): string
+    public function generate22(string $code, array $annotations): string
     {
         $stmts = $this->parser->parse($code);
         $traverser = new NodeTraverser();
         $metadata = new Metadata($this->reader);
-        $traverser->addVisitor(new RewriteVisitor($metadata,$annotations));
+        $traverser->addVisitor(new RewriteVisitor($metadata, $annotations));
         $modifiedStmts = $traverser->traverse($stmts);
         return $metadata->isHandled() ? $this->printer->prettyPrintFile($modifiedStmts) : $code;
     }

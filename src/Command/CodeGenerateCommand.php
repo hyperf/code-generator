@@ -41,7 +41,6 @@ class CodeGenerateCommand extends HyperfCommand
         parent::configure();
         $this->setDescription('Generate code for Hyperf.');
         $this->addOption('dir', 'D', InputOption::VALUE_OPTIONAL, 'Which dir will be rewrite.', 'app');
-
     }
 
     /**
@@ -62,7 +61,7 @@ class CodeGenerateCommand extends HyperfCommand
             ->path('.php')
             ->in($dir);
 
-        foreach ((array)config('annotations.scan.ignore_annotations') as $name) {
+        foreach ((array) config('annotations.scan.ignore_annotations') as $name) {
             AnnotationReader::addGlobalIgnoredName($name);
         }
 
@@ -79,13 +78,8 @@ class CodeGenerateCommand extends HyperfCommand
         }
     }
 
-    /**
-     * @param string $path
-     *
-     * @return string
-     */
-    public function errorOut(string $path) :string
+    public function errorOut(string $path): string
     {
-        $this->output->error(sprintf('`%s` refactor error, please consider submit issue at https://github.com/hyperf/code-generato',$path));
+        $this->output->error(sprintf('`%s` refactor error, please consider submit issue at https://github.com/hyperf/code-generato', $path));
     }
 }
