@@ -134,8 +134,12 @@ class RewriteVisitor extends NodeVisitorAbstract
             if (! in_array($annotation::class, $this->annotations, true)) {
                 continue;
             }
-            if ($type = $node->type?->toString() ?? $this->readTypeFromProperty($property)) {
-                continue;
+            [$type,$comment] = $this->guessClassPropertyType($property);
+            if($type) {
+                $node->type = new Node\Name($type);
+                if($comment) {
+                    $comments = $this->removeAnnotationFromComments($comments, 'var');
+                }
             }
             $className = $this->getClassName($annotation);
             $name = str_contains($className, '\\') ? new Node\Name\FullyQualified($className) : new Node\Name($this->getClassName($annotation));
@@ -145,12 +149,27 @@ class RewriteVisitor extends NodeVisitorAbstract
                     $this->buildAttributeArgs($annotation),
                 ),
             ]);
-            $node->type = new Node\Name($type);
             $comments = $this->removeAnnotationFromComments($comments, $annotation);
             $this->metadata->setHandled(true);
         }
         $node->setDocComment(new Doc((string) $comments));
         return $node;
+    }
+
+    protected function guessClassPropertyType(ReflectionProperty $property) :array
+    {
+        if($property->hasType()) {
+            return [$property->getType()?->getName(),false];
+        }
+        if($type = $this->readTypeFromProperty($property)) {
+            if(str_ends_with($type,'[]')) {
+                return ['array',true];
+            }
+            if($type !== 'callable') {
+                return [$type,true];
+            }
+        }
+        return [null,false];
     }
 
     protected function readTypeFromProperty(ReflectionProperty $property): ?string
@@ -186,7 +205,7 @@ class RewriteVisitor extends NodeVisitorAbstract
         return $properties;
     }
 
-    protected function removeAnnotationFromComments(?string $comments, AbstractAnnotation $annotation): ?string
+    protected function removeAnnotationFromComments(?string $comments, AbstractAnnotation|string $annotation): ?string
     {
         if (empty($comments)) {
             return $comments;
