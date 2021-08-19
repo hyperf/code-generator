@@ -14,6 +14,7 @@ namespace Hyperf\CodeGenerator\Visitor;
 use Doctrine\Common\Annotations\Reader;
 use Hyperf\CodeGenerator\Metadata;
 use Hyperf\Di\Annotation\AbstractAnnotation;
+use Hyperf\Di\Annotation\Inject;
 use Hyperf\Utils\Str;
 use PhpParser\BuilderFactory;
 use PhpParser\Comment\Doc;
@@ -136,7 +137,17 @@ class RewriteVisitor extends NodeVisitorAbstract
             }
             [$type,$comment] = $this->guessClassPropertyType($property);
             if($type) {
-                $node->type = new Node\Name($type);
+                if(
+                    $comment                                                    //type is from comment like @var
+                    && $annotation instanceof Inject                            // only Inject required class property type
+                    && ($parentClass = $this->reflection->getParentClass())     // is subclass
+                    && $parentClass->hasProperty($property->name)               // parentClass have same property
+                    && !$parentClass->getProperty($property->name)->hasType()   // parentClass property not have type, subclass same on
+                ) {
+                    $args = ['value' => $type];
+                } else {
+                    $node->type = new Node\Name($type);
+                }
                 if($comment) {
                     $comments = $this->removeAnnotationFromComments($comments, 'var');
                 }
@@ -146,7 +157,7 @@ class RewriteVisitor extends NodeVisitorAbstract
             $node->attrGroups[] = new Node\AttributeGroup([
                 new Node\Attribute(
                     $name,
-                    $this->buildAttributeArgs($annotation),
+                    array_merge($args ?? [],$this->buildAttributeArgs($annotation)),
                 ),
             ]);
             $comments = $this->removeAnnotationFromComments($comments, $annotation);
