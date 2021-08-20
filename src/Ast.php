@@ -41,14 +41,4 @@ class Ast
         $modifiedStmts = $traverser->traverse($stmts);
         return $metadata->isHandled() ? $this->printer->prettyPrintFile($modifiedStmts) : $code;
     }
-
-    public function generate22(string $code, array $annotations): string
-    {
-        $stmts = $this->parser->parse($code);
-        $traverser = new NodeTraverser();
-        $metadata = new Metadata($this->reader);
-        $traverser->addVisitor(new RewriteVisitor($metadata, $annotations));
-        $modifiedStmts = $traverser->traverse($stmts);
-        return $metadata->isHandled() ? $this->printer->prettyPrintFile($modifiedStmts) : $code;
-    }
 }

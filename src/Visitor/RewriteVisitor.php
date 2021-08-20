@@ -14,6 +14,7 @@ namespace Hyperf\CodeGenerator\Visitor;
 use Doctrine\Common\Annotations\Reader;
 use Hyperf\CodeGenerator\Metadata;
 use Hyperf\Di\Annotation\AbstractAnnotation;
+use Hyperf\Di\Annotation\Inject;
 use Hyperf\Utils\Str;
 use PhpParser\BuilderFactory;
 use PhpParser\Comment\Doc;
@@ -134,18 +135,31 @@ class RewriteVisitor extends NodeVisitorAbstract
             if (! in_array($annotation::class, $this->annotations, true)) {
                 continue;
             }
-            if ($type = $node->type?->toString() ?? $this->readTypeFromProperty($property)) {
-                continue;
+            /** @var Node\Identifier|Node\Name $type */
+            [$type,$comment] = $this->guessClassPropertyType($node,$property);
+            if($type) {
+                if(
+                    $comment                                                    // type is from comment like @var
+                    && ($parentClass = $this->reflection->getParentClass())     // is subclass
+                    && $parentClass->hasProperty($property->name)               // parentClass have same property
+                    && !$parentClass->getProperty($property->name)->hasType()   // parentClass property not have type, subclass same on
+                ) {
+                    if($annotation instanceof Inject) {
+                        $args = ['value' => $this->getInjectPropertyType($type)];
+                    }
+                } else {
+                    $node->type = $type;
+                }
+                if($comment) {
+                    $comments = $this->removeAnnotationFromComments($comments, 'var');
+                }
             }
-            $className = $this->getClassName($annotation);
-            $name = str_contains($className, '\\') ? new Node\Name\FullyQualified($className) : new Node\Name($this->getClassName($annotation));
             $node->attrGroups[] = new Node\AttributeGroup([
                 new Node\Attribute(
-                    $name,
-                    $this->buildAttributeArgs($annotation),
+                    $this->guessName($this->getClassName($annotation)),
+                    $this->buildAttributeArgs($annotation,$args ?? []),
                 ),
             ]);
-            $node->type = new Node\Name($type);
             $comments = $this->removeAnnotationFromComments($comments, $annotation);
             $this->metadata->setHandled(true);
         }
@@ -153,7 +167,48 @@ class RewriteVisitor extends NodeVisitorAbstract
         return $node;
     }
 
-    protected function readTypeFromProperty(ReflectionProperty $property): ?string
+    protected function getInjectPropertyType(Node\Name $type) :?string
+    {
+        if(in_array($type->toString(),$this->baseType(),true)) {
+            return $type->toString();
+        }
+        return match (true) {
+            $type->isRelative(), $type->isQualified(), $type->isUnqualified() => $this->namespace->name->toString().'\\'
+                .$type->toString(),
+            default => $type->toString(),
+        };
+    }
+
+    protected function guessName(string $name) :Node\Name
+    {
+        return str_contains($name, '\\') ? new Node\Name\FullyQualified($name) : new Node\Name($name);
+    }
+
+    /**
+     * @param Node\Stmt\Property $node
+     * @param ReflectionProperty $property
+     *
+     * @return array
+     */
+    protected function guessClassPropertyType(Node\Stmt\Property $node,ReflectionProperty $property) :array
+    {
+        $fromComment = false;
+        if($node->type) {
+            return [$node->type,$fromComment];
+        }
+        if($type = $this->readTypeFromPropertyComment($property)) {
+            $fromComment = true;
+            if(str_ends_with($type,'[]')) {
+                return [new Node\Name('array'),$fromComment];
+            }
+            if($type !== 'callable') {
+                return [$this->guessName($type),$fromComment];
+            }
+        }
+        return [null,false];
+    }
+
+    protected function readTypeFromPropertyComment(ReflectionProperty $property): ?string
     {
         $docComment = $property->getDocComment();
         if (! $docComment) {
@@ -168,9 +223,9 @@ class RewriteVisitor extends NodeVisitorAbstract
         return $type;
     }
 
-    protected function buildAttributeArgs(AbstractAnnotation $annotation): array
+    protected function buildAttributeArgs(AbstractAnnotation $annotation,array $args = []): array
     {
-        return $this->factory->args($this->getNotDefaultPropertyFromAnnotation($annotation));
+        return $this->factory->args(array_merge($args,$this->getNotDefaultPropertyFromAnnotation($annotation)));
     }
 
     protected function getNotDefaultPropertyFromAnnotation(AbstractAnnotation $annotation): array
@@ -186,7 +241,7 @@ class RewriteVisitor extends NodeVisitorAbstract
         return $properties;
     }
 
-    protected function removeAnnotationFromComments(?string $comments, AbstractAnnotation $annotation): ?string
+    protected function removeAnnotationFromComments(?string $comments, AbstractAnnotation|string $annotation): ?string
     {
         if (empty($comments)) {
             return $comments;
@@ -238,5 +293,16 @@ class RewriteVisitor extends NodeVisitorAbstract
             return [$class, substr($class, 1)];
         }
         return [$class, '\\' . $class];
+    }
+
+    protected function baseType() :array
+    {
+        return [
+            'bool',
+            'int',
+            'string',
+            'object',
+            'array',
+        ];
     }
 }
