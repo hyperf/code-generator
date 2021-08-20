@@ -43,9 +43,6 @@ class CodeGenerateCommand extends HyperfCommand
         $this->addOption('dir', 'D', InputOption::VALUE_OPTIONAL, 'Which dir will be rewrite.', 'app');
     }
 
-    /**
-     * @throws Throwable
-     */
     public function handle()
     {
         $dir = $this->input->getOption('dir');
