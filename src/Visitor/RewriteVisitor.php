@@ -136,28 +136,28 @@ class RewriteVisitor extends NodeVisitorAbstract
                 continue;
             }
             /** @var Node\Identifier|Node\Name $type */
-            [$type,$comment] = $this->guessClassPropertyType($node,$property);
-            if($type) {
-                if(
+            [$type,$comment] = $this->guessClassPropertyType($node, $property);
+            if ($type) {
+                if (
                     $comment                                                    // type is from comment like @var
                     && ($parentClass = $this->reflection->getParentClass())     // is subclass
                     && $parentClass->hasProperty($property->name)               // parentClass have same property
-                    && !$parentClass->getProperty($property->name)->hasType()   // parentClass property not have type, subclass same on
+                    && ! $parentClass->getProperty($property->name)->hasType()   // parentClass property not have type, subclass same on
                 ) {
-                    if($annotation instanceof Inject) {
+                    if ($annotation instanceof Inject) {
                         $args = ['value' => $this->getInjectPropertyType($type)];
                     }
                 } else {
                     $node->type = $type;
                 }
-                if($comment) {
+                if ($comment) {
                     $comments = $this->removeAnnotationFromComments($comments, 'var');
                 }
             }
             $node->attrGroups[] = new Node\AttributeGroup([
                 new Node\Attribute(
                     $this->guessName($this->getClassName($annotation)),
-                    $this->buildAttributeArgs($annotation,$args ?? []),
+                    $this->buildAttributeArgs($annotation, $args ?? []),
                 ),
             ]);
             $comments = $this->removeAnnotationFromComments($comments, $annotation);
@@ -167,45 +167,39 @@ class RewriteVisitor extends NodeVisitorAbstract
         return $node;
     }
 
-    protected function getInjectPropertyType(Node\Name $type) :?string
+    protected function getInjectPropertyType(Node\Name $type): ?string
     {
-        if(in_array($type->toString(),$this->baseType(),true)) {
+        if (in_array($type->toString(), $this->baseType(), true)) {
             return $type->toString();
         }
         return match (true) {
-            $type->isRelative(), $type->isQualified(), $type->isUnqualified() => $this->namespace->name->toString().'\\'
-                .$type->toString(),
+            $type->isRelative(), $type->isQualified(), $type->isUnqualified() => $this->namespace->name->toString() . '\\'
+                . $type->toString(),
             default => $type->toString(),
         };
     }
 
-    protected function guessName(string $name) :Node\Name
+    protected function guessName(string $name): Node\Name
     {
         return str_contains($name, '\\') ? new Node\Name\FullyQualified($name) : new Node\Name($name);
     }
 
-    /**
-     * @param Node\Stmt\Property $node
-     * @param ReflectionProperty $property
-     *
-     * @return array
-     */
-    protected function guessClassPropertyType(Node\Stmt\Property $node,ReflectionProperty $property) :array
+    protected function guessClassPropertyType(Node\Stmt\Property $node, ReflectionProperty $property): array
     {
         $fromComment = false;
-        if($node->type) {
-            return [$node->type,$fromComment];
+        if ($node->type) {
+            return [$node->type, $fromComment];
         }
-        if($type = $this->readTypeFromPropertyComment($property)) {
+        if ($type = $this->readTypeFromPropertyComment($property)) {
             $fromComment = true;
-            if(str_ends_with($type,'[]')) {
-                return [new Node\Name('array'),$fromComment];
+            if (str_ends_with($type, '[]')) {
+                return [new Node\Name('array'), $fromComment];
             }
-            if($type !== 'callable') {
-                return [$this->guessName($type),$fromComment];
+            if ($type !== 'callable') {
+                return [$this->guessName($type), $fromComment];
             }
         }
-        return [null,false];
+        return [null, false];
     }
 
     protected function readTypeFromPropertyComment(ReflectionProperty $property): ?string
@@ -223,9 +217,9 @@ class RewriteVisitor extends NodeVisitorAbstract
         return $type;
     }
 
-    protected function buildAttributeArgs(AbstractAnnotation $annotation,array $args = []): array
+    protected function buildAttributeArgs(AbstractAnnotation $annotation, array $args = []): array
     {
-        return $this->factory->args(array_merge($args,$this->getNotDefaultPropertyFromAnnotation($annotation)));
+        return $this->factory->args(array_merge($args, $this->getNotDefaultPropertyFromAnnotation($annotation)));
     }
 
     protected function getNotDefaultPropertyFromAnnotation(AbstractAnnotation $annotation): array
@@ -295,7 +289,7 @@ class RewriteVisitor extends NodeVisitorAbstract
         return [$class, '\\' . $class];
     }
 
-    protected function baseType() :array
+    protected function baseType(): array
     {
         return [
             'bool',

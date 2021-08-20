@@ -24,25 +24,25 @@ class Attribute extends ParentClass
     /**
      * @var int[]
      */
-    #[Value(key:"int_array")]
+    #[Value(key: 'int_array')]
     public $valueNoTypeProperty;
 
-    #[Value(key:"int")]
+    #[Value(key: 'int')]
     public int $valueHasTypeProperty;
 
-    #[Value(key:"int_array")]
+    #[Value(key: 'int_array')]
     public array $valueArrayTypeProperty;
 
     /**
      * @var callable
      */
-    #[Value(key:"callable")]
+    #[Value(key: 'callable')]
     public $valueCallableProperty;
 
-    #[Value(key:"int_or_null")]
+    #[Value(key: 'int_or_null')]
     public ?int $valueIntOrNullProperty;
 
-    #[Value(key:"foo_or_null")]
+    #[Value(key: 'foo_or_null')]
     public null|Foo $valueFooOrNullProperty2;
 
     #[Inject(value: Foo::class)]

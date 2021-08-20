@@ -17,7 +17,7 @@ use Hyperf\Di\Annotation\Inject;
 
 /**
  * @Annotation
- * @Aspect()
+ * @Aspect
  */
 class Test extends ParentClass
 {
@@ -79,5 +79,4 @@ class Test extends ParentClass
      * @var self
      */
     public $injectSelfProperty;
-
 }
