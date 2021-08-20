@@ -170,7 +170,11 @@ class RewriteVisitor extends NodeVisitorAbstract
     protected function guessClassPropertyType(ReflectionProperty $property) :array
     {
         if($property->hasType()) {
-            return [$property->getType()?->getName(),false];
+            $type = $property->getType()?->getName();
+            if(!$property->getType()?->isBuiltin()) {
+                $type = $this->getClassName($type);
+            }
+            return [$type,false];
         }
         if($type = $this->readTypeFromProperty($property)) {
             if(str_ends_with($type,'[]')) {
@@ -258,6 +262,10 @@ class RewriteVisitor extends NodeVisitorAbstract
 
                 return $use->alias->toString();
             }
+        }
+
+        if(str_starts_with($class,$namespace = $this->namespace->name->toString())) {
+            return substr($class,strlen($namespace) + 1);
         }
         return $name;
     }
