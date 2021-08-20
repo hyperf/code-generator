@@ -11,7 +11,7 @@ declare(strict_types=1);
  */
 namespace Hyperf\CodeGenerator;
 
-use Hyperf\CodeGenerator\Visitor\RewriteInjectVisitor;
+use Hyperf\Utils\ApplicationContext;
 
 class CodeGenerator implements CodeGeneratorInterface
 {

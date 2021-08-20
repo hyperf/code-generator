@@ -138,7 +138,7 @@ class RewriteVisitor extends NodeVisitorAbstract
             [$type,$comment] = $this->guessClassPropertyType($property);
             if($type) {
                 if(
-                    $comment                                                    //type is from comment like @var
+                    $comment                                                    // type is from comment like @var
                     && $annotation instanceof Inject                            // only Inject required class property type
                     && ($parentClass = $this->reflection->getParentClass())     // is subclass
                     && $parentClass->hasProperty($property->name)               // parentClass have same property
