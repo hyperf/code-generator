@@ -43,9 +43,6 @@ class CodeGenerateCommand extends HyperfCommand
         $this->addOption('dir', 'D', InputOption::VALUE_OPTIONAL, 'Which dir will be rewrite.', 'app');
     }
 
-    /**
-     * @throws Throwable
-     */
     public function handle()
     {
         $dir = $this->input->getOption('dir');
@@ -80,6 +77,6 @@ class CodeGenerateCommand extends HyperfCommand
 
     public function errorOut(string $path): void
     {
-        $this->output->error(sprintf('`%s` refactor error, please consider submit issue at https://github.com/hyperf/code-generato', $path));
+        $this->output->error(sprintf('`%s` refactor error, please consider submit issue at https://github.com/hyperf/code-generator', $path));
     }
 }

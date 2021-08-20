@@ -11,7 +11,6 @@ declare(strict_types=1);
  */
 namespace Hyperf\CodeGenerator;
 
-use Hyperf\Contract\ConfigInterface;
 use Hyperf\Utils\ApplicationContext;
 
 class CodeGenerator implements CodeGeneratorInterface
