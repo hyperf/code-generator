@@ -9,5 +9,18 @@ composer require hyperf/code-generator --dev -o
 - Inject
 
 ```shell
-php bin/hyperf.php code:generate -F 1 -D app
+php bin/hyperf.php code:generate -D app
+```
+
+## 添加自定义注解
+- 修改配置文件 config/autoload/annotations.php
+```php
+<?php
+    use App\Annotation\Debug;
+    
+    return [
+        'convert' => [
+            Debug::class    
+        ]       
+    ];
 ```
