@@ -110,8 +110,8 @@ class RewriteVisitor extends NodeVisitorAbstract
                 continue;
             }
 
-            if($this->isNestedAnnotation($annotation)) {
-                foreach ((array)$annotation as $name => $values) {
+            if ($this->isNestedAnnotation($annotation)) {
+                foreach ((array) $annotation as $name => $values) {
                     foreach ($values as $value) {
                         /** @var AbstractAnnotation $value */
                         $className = $this->getClassName($value);
@@ -138,7 +138,6 @@ class RewriteVisitor extends NodeVisitorAbstract
                 $comments = $this->removeAnnotationFromComments($comments, $annotation);
             }
             $this->metadata->setHandled(true);
-
         }
         $node->setDocComment(new Doc((string) $comments));
         return $node;
@@ -284,13 +283,13 @@ class RewriteVisitor extends NodeVisitorAbstract
             return $comments;
         }
         $class = $this->getClassName($annotation);
-        $comments = preg_replace("/{$class}\(\{.*\}\)/s",'',$comments);
-        return $this->isEmptyComments(explode($comments,PHP_EOL)) ? null : $comments;
+        $comments = preg_replace("/{$class}\\(\\{.*\\}\\)/s", '', $comments);
+        return $this->isEmptyComments(explode($comments, PHP_EOL)) ? null : $comments;
     }
 
-    protected function isNestedAnnotation(AbstractAnnotation $annotation) :bool
+    protected function isNestedAnnotation(AbstractAnnotation $annotation): bool
     {
-        return match($annotation::class) {
+        return match ($annotation::class) {
             Middlewares::class => true,
             default => false,
         };
