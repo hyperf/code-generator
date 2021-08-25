@@ -15,6 +15,7 @@ use Doctrine\Common\Annotations\Reader;
 use Hyperf\CodeGenerator\Metadata;
 use Hyperf\Di\Annotation\AbstractAnnotation;
 use Hyperf\Di\Annotation\Inject;
+use Hyperf\HttpServer\Annotation\Middlewares;
 use Hyperf\Utils\Str;
 use PhpParser\BuilderFactory;
 use PhpParser\Comment\Doc;
@@ -98,6 +99,7 @@ class RewriteVisitor extends NodeVisitorAbstract
 
     /**
      * @param Node\Stmt\Class_ $node
+     * @param AbstractAnnotation[] $annotations
      * @return Node\Stmt\Class_|Node\Stmt\ClassMethod
      */
     protected function generateAttributeAndSaveComments(Node $node, array $annotations): Node\Stmt\Class_|Node\Stmt\ClassMethod
@@ -107,16 +109,36 @@ class RewriteVisitor extends NodeVisitorAbstract
             if (! in_array($annotation::class, $this->annotations, true)) {
                 continue;
             }
-            $className = $this->getClassName($annotation);
-            $name = str_contains($className, '\\') ? new Node\Name\FullyQualified($className) : new Node\Name($this->getClassName($annotation));
-            $node->attrGroups[] = new Node\AttributeGroup([
-                new Node\Attribute(
-                    $name,
-                    $this->buildAttributeArgs($annotation),
-                ),
-            ]);
-            $comments = $this->removeAnnotationFromComments($comments, $annotation);
+
+            if($this->isNestedAnnotation($annotation)) {
+                foreach ((array)$annotation as $name => $values) {
+                    foreach ($values as $value) {
+                        /** @var AbstractAnnotation $value */
+                        $className = $this->getClassName($value);
+                        $name = str_contains($className, '\\') ? new Node\Name\FullyQualified($className)
+                            : new Node\Name($this->getClassName($value));
+                        $node->attrGroups[] = new Node\AttributeGroup([
+                            new Node\Attribute(
+                                $name,
+                                $this->buildAttributeArgs($value),
+                            ),
+                        ]);
+                    }
+                    $comments = $this->removeNestedAnnotationFromComments($comments, $annotation);
+                }
+            } else {
+                $className = $this->getClassName($annotation);
+                $name = str_contains($className, '\\') ? new Node\Name\FullyQualified($className) : new Node\Name($this->getClassName($annotation));
+                $node->attrGroups[] = new Node\AttributeGroup([
+                    new Node\Attribute(
+                        $name,
+                        $this->buildAttributeArgs($annotation),
+                    ),
+                ]);
+                $comments = $this->removeAnnotationFromComments($comments, $annotation);
+            }
             $this->metadata->setHandled(true);
+
         }
         $node->setDocComment(new Doc((string) $comments));
         return $node;
@@ -254,6 +276,24 @@ class RewriteVisitor extends NodeVisitorAbstract
             return null;
         }
         return implode(PHP_EOL, $reserved);
+    }
+
+    protected function removeNestedAnnotationFromComments(?string $comments, AbstractAnnotation|string $annotation): ?string
+    {
+        if (empty($comments)) {
+            return $comments;
+        }
+        $class = $this->getClassName($annotation);
+        $comments = preg_replace("/{$class}\(\{.*\}\)/s",'',$comments);
+        return $this->isEmptyComments(explode($comments,PHP_EOL)) ? null : $comments;
+    }
+
+    protected function isNestedAnnotation(AbstractAnnotation $annotation) :bool
+    {
+        return match($annotation::class) {
+            Middlewares::class => true,
+            default => false,
+        };
     }
 
     protected function isEmptyComments(array $comments): bool
