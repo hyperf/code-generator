@@ -14,6 +14,8 @@ namespace HyperfTest\Stub;
 use Hyperf\Config\Annotation\Value;
 use Hyperf\Di\Annotation\Aspect;
 use Hyperf\Di\Annotation\Inject;
+use Hyperf\HttpServer\Annotation\Middleware;
+use Hyperf\HttpServer\Annotation\Middlewares;
 
 /**
  * @Annotation
@@ -79,4 +81,19 @@ class Test extends ParentClass
      * @var self
      */
     public $injectSelfProperty;
+
+    public function noneAttributesMethod() :void
+    {
+
+    }
+
+    /**
+     * @Middlewares({
+     *      @Middleware(BarMiddleware::class),
+     *      @Middleware(FooMiddleware::class)
+     * })
+     */
+    public function testMiddlewaresAnnotation() :void
+    {
+    }
 }
