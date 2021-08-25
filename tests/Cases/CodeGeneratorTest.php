@@ -46,7 +46,7 @@ class CodeGeneratorTest extends AbstractTestCase
         }
         foreach ($test->getMethods() as $testMethod) {
             $this->assertTrue($sample->hasMethod($testMethod->name));
-            $sampleMethod = $sample->getMethod($test->name);
+            $sampleMethod = $sample->getMethod($testMethod->name);
             $testAttributes = $testMethod->getAttributes();
             $sampleAttributes = $sampleMethod->getAttributes();
             for ($index = 0, $indexMax = count($testAttributes); $index < $indexMax; ++$index) {
