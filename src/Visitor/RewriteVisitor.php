@@ -100,7 +100,6 @@ class RewriteVisitor extends NodeVisitorAbstract
     /**
      * @param Node\Stmt\Class_ $node
      * @param AbstractAnnotation[] $annotations
-     * @return Node\Stmt\Class_|Node\Stmt\ClassMethod
      */
     protected function generateAttributeAndSaveComments(Node $node, array $annotations): Node\Stmt\Class_|Node\Stmt\ClassMethod
     {

@@ -11,6 +11,9 @@ declare(strict_types=1);
  */
 namespace Hyperf\CodeGenerator;
 
+use Hyperf\CodeGenerator\Command\CodeGenerateCommand;
+use Hyperf\CodeGenerator\Command\UpgradeModelCommand;
+
 class ConfigProvider
 {
     public function __invoke(): array
@@ -19,6 +22,8 @@ class ConfigProvider
             'dependencies' => [
             ],
             'commands' => [
+                CodeGenerateCommand::class,
+                UpgradeModelCommand::class,
             ],
             'annotations' => [
                 'scan' => [

@@ -14,25 +14,16 @@ namespace Hyperf\CodeGenerator\Command;
 use Doctrine\Common\Annotations\AnnotationReader;
 use Hyperf\CodeGenerator\Ast;
 use Hyperf\CodeGenerator\CodeGenerator;
-use Hyperf\Command\Annotation\Command;
 use Hyperf\Command\Command as HyperfCommand;
 use Psr\Container\ContainerInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Finder\Finder;
 use Throwable;
 
-#[Command]
 class CodeGenerateCommand extends HyperfCommand
 {
-    /**
-     * @var ContainerInterface
-     */
-    protected $container;
-
-    public function __construct(ContainerInterface $container)
+    public function __construct(protected ContainerInterface $container)
     {
-        $this->container = $container;
-
         parent::__construct('code:generate');
     }
 
