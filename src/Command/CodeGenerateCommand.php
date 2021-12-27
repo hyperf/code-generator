@@ -30,7 +30,7 @@ class CodeGenerateCommand extends HyperfCommand
     public function configure()
     {
         parent::configure();
-        $this->setDescription('Generate code for Hyperf.');
+        $this->setDescription('将注解修改为 PHP8 原生注解');
         $this->addOption('dir', 'D', InputOption::VALUE_OPTIONAL, 'Which dir will be rewrite.', 'app');
     }
 
