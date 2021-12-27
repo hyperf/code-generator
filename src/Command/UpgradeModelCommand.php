@@ -24,7 +24,7 @@ class UpgradeModelCommand extends HyperfCommand
     public function __construct()
     {
         parent::__construct('code:regenerate-models');
-        $this->addArgument('path', InputArgument::REQUIRED, 'The path about Models.', 'app/Model');
+        $this->addArgument('path', InputArgument::REQUIRED, 'The path about Models.');
         $this->setDescription('重新生成适配 Hyperf 3.0 版本的模型');
     }
 
