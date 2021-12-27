@@ -54,6 +54,7 @@ class RewriteModelVisitor extends NodeVisitorAbstract
                             $node->type = new Identifier('int');
                         }
                     ),
+                    default => $node,
                 };
         }
 

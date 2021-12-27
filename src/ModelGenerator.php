@@ -21,7 +21,7 @@ class ModelGenerator
 {
     public function generate(string $path): void
     {
-        $finder = Finder::create()->in($path)->getIterator();
+        $finder = Finder::create()->in($path)->files()->name('*.php')->getIterator();
         $parserFactory = new ParserFactory();
 
         foreach ($finder as $value) {
