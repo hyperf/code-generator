@@ -49,6 +49,9 @@
         "analyse": "phpstan analyse --memory-limit 1024M -l 0 ./src",
         "cs-fix": "php-cs-fixer fix $1"
     },
+    "bin": [
+        "bin/regenerate-models.php"
+    ],
     "extra": {
         "hyperf": {
             "config": "Hyperf\\CodeGenerator\\ConfigProvider"
